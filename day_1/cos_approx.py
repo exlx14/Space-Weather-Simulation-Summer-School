@@ -3,17 +3,16 @@
 
 cosine approximation function
 """
-__author__ = 'Qusai Al Shidi'
-__email__ = 'qusai@umich.edu'
+__author__ = 'Elle Lavichant'
+__email__ = 'ellelavichant@gmail.com'
 
 from math import factorial
 from math import pi
 
 
 def cos_approx(x, accuracy=10):
-    """
-    """
-    return 
+    """ This is the Taylor Series for the Cosine function """
+    return sum([((-1)**n)/ (factorial((2*n))) *(x**(2*n)) for n in range(accuracy)])
 
 
 
