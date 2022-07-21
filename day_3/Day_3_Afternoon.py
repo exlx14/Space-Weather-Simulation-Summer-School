@@ -20,8 +20,8 @@ Unzipping a zip file using python
 # Importing the required packages
 import zipfile
 
-with zipfile.ZipFile('Data/jena_climate_2009_2016.csv.zip', 'r') as zip_ref:
-    zip_ref.extractall('Data/jena_climate_2009_2016/')
+with zipfile.ZipFile(r'C:\Users\ellel\Downloads\Space_Summer\Data-20220720T150923Z-001\Data', 'r') as zip_ref:
+    zip_ref.extractall(r'C:\Users\ellel\Downloads\Space_Summer\Data-20220720T150923Z-001\Data\jena_climate_2009_2016.csv.zip"')
     
     
 #%%
@@ -31,9 +31,19 @@ Using panda dataframe to read a csv file and doing some simple data manipulation
 # Importing the required packages
 import pandas as pd
 
-csv_path = 'Data/jena_climate_2009_2016/jena_climate_2009_2016.csv'
+csv_path = r'jena_climate_2009_2016.csv'
 df = pd.read_csv(csv_path)
 
+print(df)
+#%% Slice [start:stop:step]
+df=df[5::6]
+print(df)
+
+#Let's remove the datetime value and make it into a separate variable
+date_time= pd.to_datetime(df.pop('Date Time'), format='%d.%m.%Y %H:%M:%S')
+print(date_time)
+#%%
+df.head() #output the first five row of the data
 
 #%%
 """
@@ -41,16 +51,50 @@ Plot a subset of data from the dataframe
 """
 
 plot_cols = ['T (degC)', 'p (mbar)', 'rho (g/m**3)']
+plot_features = df[plot_cols]
+plot_features.index = date_time
+_ = plot_features.plot(subplots=True)
 
+plot_features = df[plot_cols][:480]
+plot_features.index = date_time[:480]
+_ = plot_features.plot(subplots=True)
+#%%
+df.describe().transpose()
 
 
 #%%
 """
 Data filtering, generating histogram and heatmap (2D histogram)
 """
+# We will first identify the index of the bad data and then replace them with zero
+wv = df['wv (m/s)']
+bad_wv = wv == -9999.0
+wv[bad_wv] = 0.0
 
+max_wv = df['max. wv (m/s)']
+bad_max_wv = max_wv == -9999.0
+max_wv[bad_max_wv] = 0.0
 
+# The above inplace edits are then reflected in the DataFrame.
+df['wv (m/s)'].min()
 
+import matplotlib.pyplot as plt
+
+fig, axs = plt.subplots(1, figsize=(8, 5))
+plt.hist(df['wd (deg)'])
+plt.xlabel('Wind Direction [deg]', fontsize=16)
+plt.ylabel('Number of Occurence', fontsize=16)
+plt.tick_params(axis = 'both', which = 'major', labelsize = 14)
+plt.grid()
+
+import matplotlib.pyplot as plt
+
+fig, axs = plt.subplots(1, figsize=(8, 5))
+plt.hist2d(df['wd (deg)'], df['wv (m/s)'], bins=(50, 50), vmax=400)
+plt.colorbar()
+plt.xlabel('Wind Direction [deg]', fontsize=16)
+plt.ylabel('Wind Velocity [m/s]', fontsize=16)
+plt.tick_params(axis = 'both', which = 'major', labelsize = 14)
 
 
 #%%
